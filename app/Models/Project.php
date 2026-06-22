@@ -16,4 +16,19 @@ class Project extends Model
     {
         return $this->hasMany(Attribute::class);
     }
+    public function delete_clients(Project $project)
+    {
+        error_log("client: " . $project->id);
+
+        $project->clients->each(function ($client) {
+            error_log("client: " . $client->id);
+            $client->delete();
+        });
+    }
+    // public function delete_attributes(Project $project)
+    // {
+    //     $project->attributes->each(function ($attribute) {
+    //         $attribute->delete();
+    //     });
+    // }
 }

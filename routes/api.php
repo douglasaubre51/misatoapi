@@ -30,6 +30,8 @@ Route::post("/projects/add_attribute", [
     "add_attribute",
 ]);
 
+Route::delete("/projects/{project_id}", [ProjectController::class, "delete"]);
+
 // Clients
 Route::get("/clients/{project_id}", [ClientController::class, "show"]);
 

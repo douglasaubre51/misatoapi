@@ -18,34 +18,43 @@ class ProjectController extends Controller
 
     public function create(Request $request)
     {
-        $req = $request->all();
+        try {
+            $req = $request->all();
 
-        $proj = new Project();
-        $uuid = (string) Str::uuid();
-        $proj->project_id = $uuid;
-        $proj->title = $req["title"];
+            $proj = new Project();
+            $uuid = (string) Str::uuid();
+            $proj->project_id = $uuid;
+            $proj->title = $req["title"];
 
-        $keys = $req["keys"];
-        $arr_count = count($keys);
-        $values = $req["values"];
+            $keys = $req["keys"];
+            $arr_count = count($keys);
+            $values = $req["values"];
 
-        $did_save = $proj->save();
-        if ($did_save != true) {
-            return response("Project creation failed!", 401);
+            $did_save = $proj->save();
+            if ($did_save != true) {
+                return response("Project creation failed!", 401);
+            }
+
+            $db_project = Project::where("project_id", $uuid)->first();
+
+            for ($i = 0; $i < $arr_count; $i++) {
+                if ($keys[$i] == "") {
+                    break;
+                }
+
+                $new_attribute = new Attribute();
+                $new_attribute->project_id = $db_project->id;
+                $new_attribute->key = $keys[$i];
+                $new_attribute->value = $values[$i];
+
+                $new_attribute->save();
+            }
+
+            return response("Project creation success!", 200);
+        } catch (Exception $err) {
+            error_log("Create project error: " . $err->getMessage());
+            return response("Create project error: " . $err->getMessage(), 500);
         }
-
-        $db_project = Project::where("project_id", $uuid)->get();
-
-        for ($i = 0; $i < $arr_count; $i++) {
-            $new_attribute = new Attribute();
-            $new_attribute->project_id = $db_project->id;
-            $new_attribute->key = $keys[$i];
-            $new_attribute->value = $values[$i];
-
-            $new_attribute->save();
-        }
-
-        return response("Project creation success!", 200);
     }
 
     // int project_id (primary key) of Project!
@@ -95,5 +104,22 @@ class ProjectController extends Controller
         $db_proj->title = $updated_proj["title"];
 
         return "updated project: " . $id;
+    }
+
+    public function delete(int $project_id)
+    {
+        try {
+            $db_proj = Project::where("id", $project_id)->first();
+            if (is_null($db_proj)) {
+                return response("Project doesnt exist!", 401);
+            }
+
+            $db_proj->delete();
+
+            return response("Project deleted successfully", 200);
+        } catch (Exception $err) {
+            error_log("Project deletion error: " . $err->getMessage());
+            return response("Project deletion error", 500);
+        }
     }
 }
