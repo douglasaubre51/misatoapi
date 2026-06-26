@@ -25,10 +25,4 @@ class Project extends Model
             $client->delete();
         });
     }
-    // public function delete_attributes(Project $project)
-    // {
-    //     $project->attributes->each(function ($attribute) {
-    //         $attribute->delete();
-    //     });
-    // }
 }

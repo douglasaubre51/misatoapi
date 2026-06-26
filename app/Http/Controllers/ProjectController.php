@@ -96,6 +96,21 @@ class ProjectController extends Controller
         return $proj;
     }
 
+    public function show_project_details_with_attributes(int $id)
+    {
+        try {
+            $db_proj = Project::with("attributes")->find($id);
+            if (is_null($db_proj)) {
+                return response("Project doesnt exist!", 400);
+            }
+
+            return response($db_proj);
+        } catch (Exception $ex) {
+            error_log("show_project_details error: " . $ex->getMessage());
+            return response("Error fetching project details!", 500);
+        }
+    }
+
     public function update(Request $request, string $id)
     {
         $updated_proj = $request->all();
@@ -104,6 +119,45 @@ class ProjectController extends Controller
         $db_proj->title = $updated_proj["title"];
 
         return "updated project: " . $id;
+    }
+
+    public function add_attribute_by_project(Request $request)
+    {
+        try {
+            $res = $request->all();
+
+            $db_proj = Project::find($res["projectId"]);
+            if (is_null($db_proj)) {
+                return response("Project doesnt exist!", 400);
+            }
+
+            $attr = new Attribute();
+            $attr->project_id = $db_proj->id;
+            $attr->key = $res["key"];
+            $attr->value = $res["value"];
+            $attr->save();
+        } catch (Exception $err) {
+            error_log("Add attribute to project error: " . $err->getMessage());
+            return response("Add attribute to project error!", 500);
+        }
+    }
+    public function update_attribute(Request $request)
+    {
+        try {
+            $res = $request->all();
+
+            $db_attr = Attribute::find($res["id"]);
+            if (is_null($db_attr)) {
+                return response("attribute doesnt exist!", 400);
+            }
+
+            $db_attr->key = $res["key"];
+            $db_attr->value = $res["value"];
+            $db_attr->save();
+        } catch (Exception $err) {
+            error_log("Update attribute error: " . $err->getMessage());
+            return response("Update attribute error!", 500);
+        }
     }
 
     public function delete(int $project_id)

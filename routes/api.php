@@ -9,6 +9,11 @@ Route::get("/projects/all", [ProjectController::class, "index"]);
 
 Route::get("/projects/{id}", [ProjectController::class, "show"]);
 
+Route::get("/projects/{id}/project/with_attributes", [
+    ProjectController::class,
+    "show_project_details_with_attributes",
+]);
+
 Route::post("/projects", [ProjectController::class, "store"]);
 
 Route::put("/projects/{id}", [ProjectController::class, "update"]);
@@ -28,6 +33,16 @@ Route::get("/projects/{project_id}/all_attributes", [
 Route::post("/projects/add_attribute", [
     ProjectController::class,
     "add_attribute",
+]);
+
+Route::post("/projects/project/attribute", [
+    ProjectController::class,
+    "add_attribute_by_project",
+]);
+
+Route::put("/projects/project/attribute", [
+    ProjectController::class,
+    "update_attribute",
 ]);
 
 Route::delete("/projects/{project_id}", [ProjectController::class, "delete"]);
