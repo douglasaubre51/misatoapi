@@ -20,7 +20,7 @@ Route::put("/projects/{id}", [ProjectController::class, "update"]);
 
 Route::post("/projects/new", [ProjectController::class, "create"]);
 
-Route::get("/projects/{attribute_id}/remove_attribute", [
+Route::delete("/projects/attribute/{attribute_id}/remove_attribute", [
     ProjectController::class,
     "remove_attribute_by_id",
 ]);
@@ -30,7 +30,7 @@ Route::get("/projects/{project_id}/all_attributes", [
     "get_all_attributes",
 ]);
 
-Route::post("/projects/add_attribute", [
+Route::post("/projects/{project_id}/project/add_attribute", [
     ProjectController::class,
     "add_attribute",
 ]);
@@ -40,7 +40,7 @@ Route::post("/projects/project/attribute", [
     "add_attribute_by_project",
 ]);
 
-Route::put("/projects/project/attribute", [
+Route::put("/projects/{project_id}/project/attribute", [
     ProjectController::class,
     "update_attribute",
 ]);

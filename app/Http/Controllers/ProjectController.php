@@ -58,19 +58,20 @@ class ProjectController extends Controller
     }
 
     // int project_id (primary key) of Project!
-    public function add_attribute(Request $request)
+    public function add_attribute(int $project_id, Request $request)
     {
         try {
             $req = $request->all();
 
             $attr = new Attribute();
-            $attr->project_id = $req["project_id"];
+            $attr->project_id = $project_id;
             $attr->key = $req["key"];
             $attr->value = $req["value"];
 
             $attr->save();
             return response("Created new attribute!", 200);
         } catch (Exception $ex) {
+            error_log("Error creating new attrs: " . $ex->getMessage());
             return response(
                 "Error creating new attribute: " . $ex->getMessage(),
                 500,
@@ -141,7 +142,7 @@ class ProjectController extends Controller
             return response("Add attribute to project error!", 500);
         }
     }
-    public function update_attribute(Request $request)
+    public function update_attribute(int $project_id, Request $request)
     {
         try {
             $res = $request->all();
@@ -157,6 +158,40 @@ class ProjectController extends Controller
         } catch (Exception $err) {
             error_log("Update attribute error: " . $err->getMessage());
             return response("Update attribute error!", 500);
+        }
+    }
+
+    public function update_all_attributes(Request $request)
+    {
+        try {
+            $res = $request->all();
+
+            $db_project = Project::find($res["id"]);
+            if (is_null($db_project)) {
+                return response("project doesnt exist!", 400);
+            }
+
+            $keys = $res["keys"];
+            $values = $res["values"];
+            $arr_count = count($keys);
+
+            for ($i = 0; $i < $arr_count; $i++) {
+                if ($keys[$i] == "") {
+                    break;
+                }
+
+                if ($keys[$i]->id = 0) {
+                    $new_attribute = new Attribute();
+                    $new_attribute->project_id = $db_project->id;
+                    $new_attribute->key = $keys[$i];
+                    $new_attribute->value = $values[$i];
+
+                    $new_attribute->save();
+                }
+            }
+        } catch (Exception $err) {
+            error_log("Update all attributes error: " . $err->getMessage());
+            return response("Update all attributes error!", 500);
         }
     }
 
