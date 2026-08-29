@@ -9,8 +9,9 @@ RUN npm run build
 # Stage 2: Final Application Image
 FROM php:8.4-cli-alpine
 
-# Install system runtime dependencies & PHP extensions
+# Install system runtime dependencies & PHP extensions (including PostgreSQL for Supabase)
 RUN apk add --no-cache \
+    postgresql-dev \
     freetype-dev \
     libjpeg-turbo-dev \
     libpng-dev \
@@ -18,8 +19,20 @@ RUN apk add --no-cache \
     icu-dev \
     oniguruma-dev \
     libxml2-dev \
+    bcmath-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) pdo pdo_mysql mbstring zip exif pcntl gd intl
+    && docker-php-ext-install -j$(nproc) \
+        pdo \
+        pdo_pgsql \
+        pgsql \
+        pdo_mysql \
+        mbstring \
+        zip \
+        exif \
+        pcntl \
+        gd \
+        intl \
+        bcmath
 
 # Install Composer from official image
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -29,8 +42,8 @@ WORKDIR /var/www
 # Copy manifest files first for layer caching
 COPY composer.json composer.lock ./
 
-# Install Composer dependencies (no scripts yet as full code isn't copied)
-RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
+# Install Composer dependencies (added --ignore-platform-req=php for PHP 8.4 compatibility)
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --ignore-platform-req=php
 
 # Copy full application source code
 COPY . .
@@ -38,7 +51,7 @@ COPY . .
 # Copy compiled frontend assets from Stage 1
 COPY --from=frontend /app/public/build ./public/build
 
-# Dump autoloader and optimize
+# Optimizations & Package Discovery (Generates optimized autoloader and package manifest)
 RUN composer dump-autoload --optimize --no-dev
 
 # Set correct permissions for Laravel runtime directories
