@@ -7,7 +7,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Final Application Image
-FROM php:8.2-cli-alpine
+FROM php:8.4-cli-alpine
 
 # Install system runtime dependencies & PHP extensions
 RUN apk add --no-cache \
