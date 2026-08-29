@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table("Clients", function (Blueprint $table) {
+        Schema::table("clients", function (Blueprint $table) {
             $table->dropForeign("clients_project_id_foreign");
         });
     }
@@ -20,7 +20,7 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::table("Clients", function (Blueprint $table) {
+        Schema::table("clients", function (Blueprint $table) {
             //
         });
     }

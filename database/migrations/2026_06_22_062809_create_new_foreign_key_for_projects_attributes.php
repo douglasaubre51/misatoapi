@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table("Attributes", function (Blueprint $table) {
+        Schema::table("attributes", function (Blueprint $table) {
             $table->dropForeign("attributes_project_id_foreign");
 
             $table
@@ -26,7 +26,7 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::table("Attributes", function (Blueprint $table) {
+        Schema::table("attributes", function (Blueprint $table) {
             //
         });
     }
