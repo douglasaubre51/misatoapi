@@ -1,20 +1,27 @@
-FROM richarvey/nginx-php-fpm:3.1.6
+# Use PHP 8.2 FPM image
+FROM php:8.2-fpm
 
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git curl zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev libicu-dev \
+    nodejs npm \
+    && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl gd intl \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /var/www
+
+# Copy project files
 COPY . .
 
-# Image config
-ENV SKIP_COMPOSER 1
-ENV WEBROOT /var/www/html/public
-ENV PHP_ERRORS_STDERR 1
-ENV RUN_SCRIPTS 1
-ENV REAL_IP_HEADER 1
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
 
-# Laravel config
-ENV APP_ENV production
-ENV APP_DEBUG false
-ENV LOG_CHANNEL stderr
+# Install Node dependencies
+RUN npm install
+RUN npm run build
 
-# Allow composer to run as root
-ENV COMPOSER_ALLOW_SUPERUSER 1
+# Expose port
+EXPOSE 8000
 
-CMD ["/start.sh"]
+CMD php artisan serve --host=0.0.0.0 --port=8000
